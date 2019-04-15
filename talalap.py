@@ -4,6 +4,7 @@ import random
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 420
+FONT_COLOR = arcade.color.WARM_BLACK
 MONSTER_IMG = ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "8.png", "9.png", "10.png"]
 PLAYER_IMG = ["images/P_Set.png", "images/P_Hit.png"]
 
@@ -50,59 +51,90 @@ class PlayerSprite:
 
 
 class TaLaLapWindow(arcade.Window):
+    BONUS_TIME = 10
+
     def __init__(self, width, height):
         super().__init__(width, height, "TaLaLap")
         arcade.set_background_color(arcade.color.WHITE)
         self.world = World(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.player = PlayerSprite()
-        self.background = arcade.load_texture("images/bg.png")
+        self.background = arcade.load_texture("images/bg2.jpg")
         self.monster = MonsterSprite()
         self.coin_list = arcade.SpriteList()
+        self.stage = 0
+        self._bonus_time = 0
+        self.random_coin_list()
+
+    def random_coin_list(self):
         for i in range(5):
             coin = arcade.Sprite("images/coin.png", 0.09)
             coin.center_x = random.randrange(SCREEN_WIDTH)
-            coin.center_y = random.randrange(SCREEN_HEIGHT)
+            coin.center_y = SCREEN_HEIGHT // 2
             self.coin_list.append(coin)
 
     def on_draw(self):
         arcade.draw_texture_rectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                                       SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
+        if self.stage == -1:
+            self.coin_list.draw()
+
         self.monster.draw(self.world.monster.x, self.world.monster.y)
         self.player.draw(self.world.player.x, self.world.player.y)
-        # self.coin_list.draw()
+
         # Display information
-        arcade.draw_text("Coin: " + str(self.world.coin), self.width - 100, self.height - 30, arcade.color.BLACK, 20)
-        arcade.draw_text("HP: " + str(self.world.monster.hp), self.width - 580, self.height - 30, arcade.color.BLACK,
+        arcade.draw_text("Coin: " + str(self.world.coin), self.width - 590, self.height - 60, FONT_COLOR,
                          20)
-        arcade.draw_text("Damage: " + str(self.world.player.damage), self.width - 580, self.height - 400,
-                         arcade.color.BLACK, 20)
-        arcade.draw_text("Level: " + str(self.world.hp_level), self.width - 340, self.height -20,
-                         arcade.color.BLACK, 20)
+        arcade.draw_text("HP: " + str(self.world.monster.hp), self.width - 590, self.height - 30, FONT_COLOR,
+                         20)
+        arcade.draw_text("Damage: " + str(self.world.player.damage), self.width - 590, self.height - 410,
+                         FONT_COLOR, 20)
+        arcade.draw_text("Level: " + str(self.world.hp_level), self.width - 350, self.height - 20,
+                         FONT_COLOR, 20)
 
     def update(self, delta):
-        # Update animation for monster.
-        if self.monster.stage != 9:
-            self.monster.update(self.monster.stage + 1)
+        if self.stage == 0:
+            # Check monster hp before can access the bonus time stage(-1).
+            if self.world.monster.hp <= 0:
+                self.stage = -1
+                self.world.monster.y = 1000
+            # Update animation for monster.
+            if self.monster.stage != 9:
+                self.monster.update(self.monster.stage + 1)
+            else:
+                self.monster.stage = 0
+            # Update monster level
+            self.monster.level = self.world.level
+
         else:
-            self.monster.stage = 0
-        # Update monster level
-        self.monster.level = self.world.level
-        # Update coin when hit.
-        self.coin_list.update()
-        coin_hit_list = arcade.check_for_collision_with_list(self.player.player_sprite, self.coin_list)
-        for coin in coin_hit_list:
-            coin.kill()
-            self.world.coin += 5
+            # Update coin when hit.
+            self.coin_list.update()
+            coin_hit_list = arcade.check_for_collision_with_list(self.player.player_sprite, self.coin_list)
+            for coin in coin_hit_list:
+                coin.kill()
+                self.world.coin += 5
+            # Check is coin list is empty before turn to fight stage(0).
+            if not self.coin_list:
+                self.stage = 0
+                self.world.monster.y = SCREEN_HEIGHT - 130
+                self.random_coin_list()
+                self.world.player.x = SCREEN_WIDTH // 2
         self.world.update(delta)
 
     def on_key_press(self, symbol: int, modifiers: int):
-        # Check user press space bar key.
-        if symbol == 32:
+        # Check user press space bar key in the fight stage(0).
+        if symbol == 32 and self.stage == 0:
             arcade.play_sound(self.player.hit_sound)
             self.monster.delay = -15
             self.player.stage = 1
-            self.world.on_key_press(self, symbol)
-            print(arcade.check_for_collision(self.player.player_sprite, self.monster.monster_sprite))
+            # Check that player hit monster
+            is_hit = arcade.check_for_collision(self.player.player_sprite, self.monster.monster_sprite)
+            self.world.on_key_press(self, 0, is_hit)
+        # Check user press left or right in the bonus time stage(-1).
+        if self.stage == -1:
+            if symbol == 65361:
+                self.world.on_key_press(self, -1, 'L')
+            if symbol == 65363:
+                self.world.on_key_press(self, -1, 'R')
 
     def on_key_release(self, symbol: int, modifiers: int):
         self.player.stage = 0

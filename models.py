@@ -4,14 +4,7 @@ class Player:
         self.world = world
         self.x = x
         self.y = y
-        self.hit = False
         self.damage = 50
-
-    def update(self, delta):
-        return
-
-    def hit(self):
-        self.hit = True
 
 
 class Monster:
@@ -33,6 +26,13 @@ class Monster:
             self.hp = self.hp_default * self.world.hp_level
 
 
+class Coin:
+    def __init__(self, world, x, y):
+        self.x = x
+        self.y = y
+        self.world = world
+
+
 class World:
     def __init__(self, width, height):
         self.width = width
@@ -44,8 +44,13 @@ class World:
         self.level = 1
 
     def update(self, delta):
-        self.player.update(delta)
         self.monster.update(delta)
 
-    def on_key_press(self, key, key_modifiers):
-        self.monster.hp -= self.player.damage
+    def on_key_press(self, symbol: int, stage, hit):
+        if hit and stage == 0:
+            self.monster.hp -= self.player.damage
+        if stage == -1:
+            if hit == 'L':
+                self.player.x -= 20
+            if hit == 'R':
+                self.player.x += 20
