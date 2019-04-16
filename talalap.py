@@ -52,6 +52,7 @@ class PlayerSprite:
 
 class TaLaLapWindow(arcade.Window):
     BONUS_TIME = 10
+    COIN_DELAY_TIME = 20
 
     def __init__(self, width, height):
         super().__init__(width, height, "TaLaLap")
@@ -60,23 +61,32 @@ class TaLaLapWindow(arcade.Window):
         self.player = PlayerSprite()
         self.background = arcade.load_texture("images/bg2.jpg")
         self.monster = MonsterSprite()
-        self.coin_list = arcade.SpriteList()
         self.stage = 0
-        self._bonus_time = 0
+        self.bonus_time = 0
+        self.coin_list = arcade.SpriteList()
         self.random_coin_list()
+        self.coin_delay = 0
 
     def random_coin_list(self):
         for i in range(5):
             coin = arcade.Sprite("images/coin.png", 0.09)
             coin.center_x = random.randrange(SCREEN_WIDTH)
-            coin.center_y = SCREEN_HEIGHT // 2
+            coin.center_y = random.randint(SCREEN_HEIGHT - 100, SCREEN_HEIGHT)
             self.coin_list.append(coin)
 
     def on_draw(self):
         arcade.draw_texture_rectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                                       SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
         if self.stage == -1:
-            self.coin_list.draw()
+            # Draw coin with the velocity -1.
+            if self.coin_delay == self.COIN_DELAY_TIME:
+                for coin in self.coin_list:
+                    if coin.center_y < 0:
+                        coin.kill()
+                    coin.center_y -= 1
+                self.coin_list.draw()
+            else:
+                self.coin_delay += 1
 
         self.monster.draw(self.world.monster.x, self.world.monster.y)
         self.player.draw(self.world.player.x, self.world.player.y)
@@ -104,7 +114,6 @@ class TaLaLapWindow(arcade.Window):
                 self.monster.stage = 0
             # Update monster level
             self.monster.level = self.world.level
-
         else:
             # Update coin when hit.
             self.coin_list.update()

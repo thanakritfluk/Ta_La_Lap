@@ -1,5 +1,4 @@
 class Player:
-
     def __init__(self, world, x, y):
         self.world = world
         self.x = x
@@ -22,15 +21,7 @@ class Monster:
                 self.world.level = 1
             else:
                 self.world.level += 1
-            self.world.coin += 5
             self.hp = self.hp_default * self.world.hp_level
-
-
-class Coin:
-    def __init__(self, world, x, y):
-        self.x = x
-        self.y = y
-        self.world = world
 
 
 class World:
