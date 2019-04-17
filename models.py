@@ -1,9 +1,15 @@
+NUMBER_OF_MONSTER = 4
+
+
 class Player:
     def __init__(self, world, x, y):
         self.world = world
         self.x = x
         self.y = y
-        self.damage = 50
+        self.damage = 10
+
+    def plus_damage(self, plus):
+        self.damage += plus
 
 
 class Monster:
@@ -17,7 +23,7 @@ class Monster:
     def update(self, delta):
         if self.hp <= 0:
             self.world.hp_level += 1
-            if self.world.level == 2:
+            if self.world.level == NUMBER_OF_MONSTER:
                 self.world.level = 1
             else:
                 self.world.level += 1
