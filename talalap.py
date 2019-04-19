@@ -120,8 +120,13 @@ class TaLaLapWindow(arcade.Window):
     def coin_stage(self):
         # Update coin when hit.
         self.coin_list.update()
-        coin_hit_list = arcade.check_for_collision_with_list(self.player.player_sprite, self.coin_list)
+        coin_hit_list = []
+        for coin in self.coin_list:
+            if self.world.player.is_hit(coin):
+                coin_hit_list.append(coin)
         for coin in coin_hit_list:
+            sound = arcade.load_sound("sound/coins.wav")
+            arcade.play_sound(sound)
             coin.kill()
             self.world.coin += 5 * 2 + (self.world.level - 1)
         # Check is coin list is empty before turn to fight stage(0).
