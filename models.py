@@ -2,6 +2,8 @@ NUMBER_OF_MONSTER = 4
 
 
 class Player:
+    HIT_SPACE = 50
+
     def __init__(self, world, x, y):
         self.world = world
         self.x = x
@@ -10,6 +12,11 @@ class Player:
 
     def plus_damage(self, plus):
         self.damage += plus
+
+    def is_hit(self, coin):
+        if coin.center_x - self.HIT_SPACE <= self.x <= coin.center_x + self.HIT_SPACE:
+            if coin.center_y - self.HIT_SPACE <= self.y <= coin.center_y + self.HIT_SPACE:
+                return True
 
 
 class Monster:

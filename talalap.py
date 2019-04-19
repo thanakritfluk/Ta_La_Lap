@@ -125,8 +125,8 @@ class TaLaLapWindow(arcade.Window):
             if self.world.player.is_hit(coin):
                 coin_hit_list.append(coin)
         for coin in coin_hit_list:
-            sound = arcade.load_sound("sound/coins.wav")
-            arcade.play_sound(sound)
+            # sound = arcade.load_sound("sound/coins.wav")
+            # arcade.play_sound(sound)
             coin.kill()
             self.world.coin += 5 * 2 + (self.world.level - 1)
         # Check is coin list is empty before turn to fight stage(0).
