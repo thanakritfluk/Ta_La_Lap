@@ -37,6 +37,8 @@ class Monster:
             self.hp = self.hp_default * self.world.hp_level
 
 
+
+
 class World:
     def __init__(self, width, height):
         self.width = width
@@ -51,10 +53,13 @@ class World:
         self.monster.update(delta)
 
     def on_key_press(self, symbol: int, stage, hit):
-        if hit and stage == 0:
-            self.monster.hp -= self.player.damage
+        if hit and stage == 0 or stage == 1 and hit:
+            if stage == 0:
+                self.monster.hp -= self.player.damage
+            else:
+                self.monster.hp -= self.player.damage * 2
         if stage == -1:
             if hit == 'L':
-                self.player.x -= 20
+                self.player.x -= 30
             if hit == 'R':
-                self.player.x += 20
+                self.player.x += 30
