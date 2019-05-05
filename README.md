@@ -13,7 +13,7 @@
 
 ## Screenshot
 
-![](images/screenshot/fight.png)
+![alt text](https://raw.githubusercontent.com/thanakritfluk/Ta_La_Lap/master/images/screenshot/fight.png)
 
 
 ![](images/screenshot/coin.png)
