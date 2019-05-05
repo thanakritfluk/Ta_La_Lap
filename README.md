@@ -2,18 +2,18 @@
 
 ##### Talalap game is the type of the endless game that player have to kill the monster in each stage and then the player killed the monster will give the coin to collect to upgrade the ability or use the double damage item.
 
-##Requirement
+## Requirement
 - Python 3.7 or lastest
 - PyObjC
 
-##Control
+## Control
 - SpaceBar for hit the monster in the fight stage.
 - Left and Right arrow key to move to collect coin.
 - Left mouse click to use any items.
 
-##Screenshot
+## Screenshot
 
-![Alt text](images/screenshot/fight.png?raw=true "Title")
+![](images/screenshot/fight.png?raw=true "Title")
 
 
-![Alt text](images/screenshot/coin.png?raw=true "Title")
+![](images/screenshot/coin.png?raw=true "Title")
