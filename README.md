@@ -13,7 +13,7 @@
 
 ## Screenshot
 
-![](images/screenshot/fight.png?raw=true "Title")
+![](images/screenshot/fight.png)
 
 
-![](images/screenshot/coin.png?raw=true "Title")
+![](images/screenshot/coin.png)
