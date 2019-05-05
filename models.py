@@ -4,32 +4,35 @@ import arcade
 class Monster:
     DELAY_TIME = 0
     MONSTER_FOLDER = 4
-    LIST_MONSTER = ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "8.png", "9.png", "10.png"]
+    LIST_MONSTER = ["1.png", "2.png",
+                    "3.png", "4.png",
+                    "5.png", "6.png",
+                    "7.png", "8.png",
+                    "9.png", "10.png"]
 
     def __init__(self, world, x, y):
         self.world = world
         self.x = x
         self.y = y
-        self.count = 0
-        self.attacked = False
-        self.monster_folder = 1
-        self.monster_stage = self.LIST_MONSTER[0]
         self.hp = 100
         self.hp_default = self.hp
+        self.monster_folder = 1
+        self.current_frame = 0
+        self.monster_frame = self.LIST_MONSTER[0]
+        self.attacked = False
 
     def update(self, delta):
-        print(self.world.height)
         self.DELAY_TIME += 1
         if self.DELAY_TIME == 3:
             if not self.attacked:
-                self.count += 1
+                self.current_frame += 1
                 self.DELAY_TIME = 0
-                if self.count < 9:
-                    self.monster_stage = self.LIST_MONSTER[self.count]
+                if self.current_frame < 9:
+                    self.monster_frame = self.LIST_MONSTER[self.current_frame]
                 else:
-                    self.count = 0
+                    self.current_frame = 0
             elif self.attacked:
-                self.monster_stage = self.LIST_MONSTER[9]
+                self.monster_frame = self.LIST_MONSTER[9]
                 self.DELAY_TIME = -10
                 self.attacked = False
 
@@ -61,13 +64,21 @@ class Monster:
 
 class Player:
     HIT_SPACE = 50
-    MOVE_SPACE = 5
+    MOVE_SPEED = 15
 
     def __init__(self, world, x, y):
         self.world = world
+        self.player_frame = 0
         self.x = x
         self.y = y
         self.damage = 10
+
+    def set_stand_frame(self):
+        self.player_frame = 0
+
+    def set_hit_frame(self):
+        arcade.play_sound(arcade.load_sound("sound/hit.wav"))
+        self.player_frame = 1
 
     def plus_damage(self, plus):
         self.damage += plus
@@ -81,13 +92,73 @@ class Player:
         return arcade.check_for_collision(player, monster)
 
     def move_left(self):
-        self.x -= self.MOVE_SPACE
+        self.x -= self.MOVE_SPEED
 
     def move_right(self):
-        self.x += self.MOVE_SPACE
+        self.x += self.MOVE_SPEED
 
-    def update(self, delta):
-        pass
+    def set_init_position(self):
+        self.x = self.world.width // 2
+
+
+class ITEM:
+    DELAY_TIME = 20
+
+    def __init__(self, world):
+        self.world = world
+        self.count_delay = 0
+        self.item_time = 0
+
+    def press_double_dam(self, x, y):
+        if 472 <= x <= 526 and 10 <= y <= 60:
+            if self.world.coin >= 50 and self.item_time == 0 and self.world.on_fight_stage():
+                self.world.player.damage *= 2
+                self.item_time = 10
+                self.world.coin -= 50
+
+    def press_plus_dam(self, x, y):
+        if 532 <= x <= 583 and 9 <= y <= 60:
+            if self.world.coin >= 100 and self.world.on_fight_stage():
+                self.world.player.damage += 10
+                self.world.coin -= 100
+
+    def update(self):
+        if self.item_time > 0 and self.world.on_fight_stage():
+            if self.item_time == 1:
+                self.world.player.damage //= 2
+                self.item_time = 0
+            self.count_delay += 1
+            if self.count_delay == self.DELAY_TIME:
+                self.item_time -= 1
+                self.count_delay = 0
+
+
+class Coin:
+    NUMBER_OF_COIN = 5
+
+    def __init__(self, world):
+        self.world = world
+        self.coin = arcade.SpriteList()
+
+    def random_coin_list(self):
+        for i in range(self.NUMBER_OF_COIN):
+            coin = arcade.Sprite("images/coin.png", 0.09)
+            coin.center_x = arcade.random.randrange(self.world.width)
+            coin.center_y = arcade.random.randint(self.world.height - 100, self.world.height)
+            self.coin.append(coin)
+
+    def is_empty_list(self):
+        return not self.coin
+
+    def update(self):
+        for coin in self.coin:
+            coin.center_y -= 1
+            if coin.center_y < 0:
+                coin.kill()
+            if self.world.player.is_hit_coin(coin):
+                arcade.play_sound(arcade.load_sound("sound/coins.wav"))
+                coin.kill()
+                self.world.coin += arcade.random.randint(10, 60)
 
 
 class World:
@@ -95,30 +166,51 @@ class World:
         self.width = width
         self.height = height
         self.player = Player(self, self.width // 2, self.height // 3)
+        self.item = ITEM(self)
         self.monster = Monster(self, self.width // 2, self.height - 130)
-        self.player_state = 0
+        self.coin_list = Coin(self)
+        self.coin = 50
         # World level define the hp of monster too.
         self.world_level = 1
         self.world_stage = "Fight"
 
-    def check_change_world_level(self):
+    def check_change_to_coin_stage(self):
         if self.monster.hp <= self.player.damage:
             self.world_level += 1
+            self.coin_list.random_coin_list()
+            self.world_stage = "Coin"
+
+    def check_change_to_fight_stage(self):
+        if self.coin_list.is_empty_list():
+            self.world_stage = "Fight"
+            self.player.set_init_position()
+
+    def on_fight_stage(self):
+        return self.world_stage == "Fight"
+
+    def on_coin_stage(self):
+        return self.world_stage == "Coin"
 
     def on_key_press(self, key, key_modifiers):
-        if key == arcade.key.SPACE and self.world_stage == "Fight":
-            self.check_change_world_level()
-            self.player_state = 1
+        if key == arcade.key.SPACE and self.on_fight_stage():
+            self.check_change_to_coin_stage()
+            self.player.set_hit_frame()
             self.monster.attack_effect(self.player.damage, self.world_level)
-        if self.world_stage == "Coin":
+        if self.on_coin_stage():
             if key == arcade.key.LEFT:
                 self.player.move_left()
             if key == arcade.key.RIGHT:
                 self.player.move_right()
 
     def on_key_release(self, key, key_modifiers):
-        self.player_state = 0
+        self.player.set_stand_frame()
+
+    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        self.item.press_plus_dam(x, y)
+        self.item.press_double_dam(x, y)
 
     def update(self, delta):
-        self.player.update(delta)
+        self.check_change_to_fight_stage()
         self.monster.update(delta)
+        self.coin_list.update()
+        self.item.update()
