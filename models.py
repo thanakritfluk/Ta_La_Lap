@@ -64,7 +64,7 @@ class Monster:
 
 class Player:
     HIT_SPACE = 50
-    MOVE_SPEED = 15
+    MOVE_SPEED = 20
 
     def __init__(self, world, x, y):
         self.world = world
@@ -162,6 +162,8 @@ class Coin:
 
 
 class World:
+    DELAY_TIME = 10
+
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -173,6 +175,8 @@ class World:
         # World level define the hp of monster too.
         self.world_level = 1
         self.world_stage = "Fight"
+        self.stage_time = 20
+        self.count_delay = 0
 
     def check_change_to_coin_stage(self):
         if self.monster.hp <= self.player.damage:
@@ -210,6 +214,15 @@ class World:
         self.item.press_double_dam(x, y)
 
     def update(self, delta):
+        if self.on_fight_stage():
+            self.count_delay += 1
+            if self.stage_time >= 0 and self.DELAY_TIME == self.count_delay:
+                self.stage_time -= 1
+                self.count_delay = 0
+        # if self.on_fight_stage() and self.stage_time <= 0:
+        #     self.world_stage = "over"
+        #     self.stage_time = 20
+
         self.check_change_to_fight_stage()
         self.monster.update(delta)
         self.coin_list.update()
