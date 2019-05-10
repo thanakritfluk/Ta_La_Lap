@@ -221,6 +221,7 @@ class World:
         self.stage_time = 20
         self.monster.monster_folder = 1
         self.player.damage = 10
+        self.world_level = 1
 
     def update(self, delta):
         if self.on_fight_stage():
