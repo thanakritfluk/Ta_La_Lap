@@ -1,4 +1,5 @@
 import arcade
+from random import randint
 
 
 class Monster:
@@ -143,8 +144,8 @@ class Coin:
     def random_coin_list(self):
         for i in range(self.NUMBER_OF_COIN):
             coin = arcade.Sprite("images/coin.png", 0.09)
-            coin.center_x = arcade.random.randrange(self.world.width)
-            coin.center_y = arcade.random.randint(self.world.height - 100, self.world.height)
+            coin.center_x = randint(20, self.world.width)
+            coin.center_y = randint(self.world.height - 100, self.world.height)
             self.coin.append(coin)
 
     def is_empty_list(self):
@@ -214,16 +215,21 @@ class World:
         self.item.press_plus_dam(x, y)
         self.item.press_double_dam(x, y)
 
+    def set_start_stage(self):
+        self.coin = 50
+        self.world_stage = "Fight"
+        self.stage_time = 20
+        self.monster.monster_folder = 1
+        self.player.damage = 10
+
     def update(self, delta):
         if self.on_fight_stage():
             self.count_delay += 1
             if self.stage_time >= 0 and self.DELAY_TIME == self.count_delay:
                 self.stage_time -= 1
                 self.count_delay = 0
-        # if self.on_fight_stage() and self.stage_time <= 0:
-        #     self.world_stage = "over"
-        #     self.stage_time = 20
-
+            if self.stage_time <= 0:
+                self.set_start_stage()
         self.check_change_to_fight_stage()
         self.monster.update(delta)
         self.coin_list.update()
