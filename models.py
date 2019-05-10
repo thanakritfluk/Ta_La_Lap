@@ -176,7 +176,7 @@ class World:
         # World level define the hp of monster too.
         self.world_level = 1
         self.world_stage = "Fight"
-        self.stage_time = 20
+        self.stage_time = 40
         self.count_delay = 0
 
     def check_change_to_coin_stage(self):
@@ -184,7 +184,7 @@ class World:
             self.world_level += 1
             self.coin_list.random_coin_list()
             self.world_stage = "Coin"
-            self.stage_time = 20
+            self.stage_time = 40
 
     def check_change_to_fight_stage(self):
         if self.coin_list.is_empty_list():
@@ -218,7 +218,7 @@ class World:
     def set_start_stage(self):
         self.coin = 50
         self.world_stage = "Fight"
-        self.stage_time = 20
+        self.stage_time = 40
         self.monster.monster_folder = 1
         self.player.damage = 10
         self.world_level = 1
