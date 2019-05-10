@@ -159,7 +159,7 @@ class Coin:
             if self.world.player.is_hit_coin(coin):
                 arcade.play_sound(arcade.load_sound("sound/coins.wav"))
                 coin.kill()
-                self.world.coin += arcade.random.randint(10, 60)
+                self.world.coin += randint(10, 60)
 
 
 class World:
