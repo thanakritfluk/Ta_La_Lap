@@ -5,6 +5,7 @@
 ## Requirement
 - Python 3.7 or lastest
 - PyObjC
+- Arcade 1.3.7 only
 
 ## Control
 - SpaceBar for hit the monster in the fight stage.

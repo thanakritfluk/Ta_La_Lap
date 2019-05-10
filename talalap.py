@@ -59,7 +59,7 @@ class TaLaLapWindow(arcade.Window):
                              self.font_color,
                              20)
         if self.world.world_stage == "Fight":
-            arcade.draw_text("Time: " + str(self.world.stage_time), self.width - 95, self.height - 20,
+            arcade.draw_text("Time: " + str(self.world.stage_time), self.width - 108, self.height - 20,
                              self.font_color, 20)
 
     def on_draw(self):
