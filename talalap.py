@@ -54,6 +54,9 @@ class TaLaLapWindow(arcade.Window):
             arcade.draw_text("Item_time: " + str(self.world.item.item_time), self.width - 590, self.height - 90,
                              FONT_COLOR,
                              20)
+        if self.world.world_stage == "Fight":
+            arcade.draw_text("Time: " + str(self.world.stage_time), self.width - 95, self.height - 20,
+                         FONT_COLOR, 20)
 
     def on_draw(self):
         arcade.draw_texture_rectangle(SCREEN_WIDTH // 2,

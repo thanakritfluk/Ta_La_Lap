@@ -33,7 +33,7 @@ class Monster:
                     self.current_frame = 0
             elif self.attacked:
                 self.monster_frame = self.LIST_MONSTER[9]
-                self.DELAY_TIME = -10
+                self.DELAY_TIME = -5
                 self.attacked = False
 
     def fight_position(self):
@@ -183,6 +183,7 @@ class World:
             self.world_level += 1
             self.coin_list.random_coin_list()
             self.world_stage = "Coin"
+            self.stage_time = 20
 
     def check_change_to_fight_stage(self):
         if self.coin_list.is_empty_list():
