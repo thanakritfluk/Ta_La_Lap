@@ -3,7 +3,6 @@ from models import World
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 420
-FONT_COLOR = arcade.color.WARM_BLACK
 
 
 class ModelSprite(arcade.Sprite):
@@ -23,6 +22,7 @@ class ModelSprite(arcade.Sprite):
 class TaLaLapWindow(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, "TaLaLap")
+        self.font_color = arcade.color.WARM_BLACK
         self.world = World(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.coin_list = self.world.coin_list
         self.plus_dam = arcade.Sprite("images/DoubleDam.png", scale=0.7)
@@ -42,36 +42,52 @@ class TaLaLapWindow(arcade.Window):
             scale=0.5, model=self.world.monster)
 
     def display_information(self):
-        arcade.draw_text("Coin: " + str(self.world.coin), self.width - 590, self.height - 60, FONT_COLOR,
+        arcade.draw_text("Coin: " + str(self.world.coin), self.width - 590, self.height - 60, self.font_color,
                          20)
-        arcade.draw_text("HP: " + str(self.world.monster.hp), self.width - 590, self.height - 30, FONT_COLOR,
+        arcade.draw_text("HP: " + str(self.world.monster.hp), self.width - 590, self.height - 30, self.font_color,
                          20)
         arcade.draw_text("Damage: " + str(self.world.player.damage), self.width - 590, self.height - 410,
-                         FONT_COLOR, 20)
+                         self.font_color, 20)
         arcade.draw_text("Level: " + str(self.world.world_level), self.width - 350, self.height - 20,
-                         FONT_COLOR, 20)
+                         self.font_color, 20)
+        arcade.draw_text(self.world.end_text, self.width // 3.65, self.height // 2 + 50, color=arcade.color.ORANGE_RED,
+                         font_size=50, bold=2)
+        arcade.draw_text(self.world.desc, self.width // 2.85, self.height // 2.35 + 50, color=arcade.color.WHITE_SMOKE,
+                         font_size=15, bold=2)
         if self.world.item.item_time > 0:
             arcade.draw_text("Item_time: " + str(self.world.item.item_time), self.width - 590, self.height - 90,
-                             FONT_COLOR,
+                             self.font_color,
                              20)
         if self.world.world_stage == "Fight":
-            arcade.draw_text("Time: " + str(self.world.stage_time), self.width - 106, self.height - 20,
-                         FONT_COLOR, 20)
+            arcade.draw_text("Time: " + str(self.world.stage_time), self.width - 95, self.height - 20,
+                             self.font_color, 20)
 
     def on_draw(self):
-        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2,
-                                      SCREEN_HEIGHT // 2,
-                                      SCREEN_WIDTH,
-                                      SCREEN_HEIGHT,
-                                      arcade.load_texture("images/bg2.jpg"))
-        self.display_information()
+        if self.world.stage_time <= 0:
+            arcade.draw_rectangle_filled(SCREEN_WIDTH // 2,
+                                         SCREEN_HEIGHT // 2,
+                                         SCREEN_WIDTH,
+                                         SCREEN_HEIGHT,
+                                         arcade.color.BLACK)
+        else:
+            arcade.draw_texture_rectangle(SCREEN_WIDTH // 2,
+                                          SCREEN_HEIGHT // 2,
+                                          SCREEN_WIDTH,
+                                          SCREEN_HEIGHT,
+                                          arcade.load_texture("images/bg2.jpg"))
+
         if self.world.on_fight_stage():
-            self.monster.draw()
-            self.double_dam.draw()
-            self.plus_dam.draw()
+            if self.world.end_text == "":
+                self.monster.draw()
+                self.double_dam.draw()
+                self.plus_dam.draw()
+            elif self.world.end_text == "Game Over":
+                self.font_color = arcade.color.BLACK
         else:
             self.coin_list.coin.draw()
         self.player.draw()
+
+        self.display_information()
 
     def on_key_press(self, key, key_modifiers):
         self.world.on_key_press(key, key_modifiers)

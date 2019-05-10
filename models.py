@@ -163,7 +163,7 @@ class Coin:
 
 
 class World:
-    DELAY_TIME = 10
+    DELAY_TIME = 15
 
     def __init__(self, width, height):
         self.width = width
@@ -174,9 +174,11 @@ class World:
         self.coin_list = Coin(self)
         self.coin = 50
         # World level define the hp of monster too.
+        self.end_text = ""
+        self.desc = ""
         self.world_level = 1
         self.world_stage = "Fight"
-        self.stage_time = 40
+        self.stage_time = 20
         self.count_delay = 0
 
     def check_change_to_coin_stage(self):
@@ -184,7 +186,7 @@ class World:
             self.world_level += 1
             self.coin_list.random_coin_list()
             self.world_stage = "Coin"
-            self.stage_time = 40
+            self.stage_time = 20
 
     def check_change_to_fight_stage(self):
         if self.coin_list.is_empty_list():
@@ -198,7 +200,11 @@ class World:
         return self.world_stage == "Coin"
 
     def on_key_press(self, key, key_modifiers):
-        if key == arcade.key.SPACE and self.on_fight_stage():
+        if key == arcade.key.ENTER and self.on_fight_stage() and self.end_text == "Game Over":
+            self.end_text = ""
+            self.desc = ""
+            self.set_start_stage()
+        if key == arcade.key.SPACE and self.on_fight_stage() and self.end_text == "":
             self.check_change_to_coin_stage()
             self.player.set_hit_frame()
             self.monster.attack_effect(self.player.damage, self.world_level)
@@ -217,20 +223,24 @@ class World:
 
     def set_start_stage(self):
         self.coin = 50
+        self.world_level = 1
+        self.monster.hp = 100
         self.world_stage = "Fight"
-        self.stage_time = 40
+        self.stage_time = 20
         self.monster.monster_folder = 1
         self.player.damage = 10
-        self.world_level = 1
 
     def update(self, delta):
         if self.on_fight_stage():
-            self.count_delay += 1
+            if self.stage_time <= 0:
+                self.end_text = "Game Over"
+                self.desc = "Press ENTER to try again"
+            else:
+                self.count_delay += 1
             if self.stage_time >= 0 and self.DELAY_TIME == self.count_delay:
                 self.stage_time -= 1
                 self.count_delay = 0
-            if self.stage_time <= 0:
-                self.set_start_stage()
+
         self.check_change_to_fight_stage()
         self.monster.update(delta)
         self.coin_list.update()
